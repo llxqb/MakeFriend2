@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="marry">
+    <output-path>$PROJECT_DIR$/out/artifacts/marry</output-path>
+    <root id="archive" name="marry.war">
+      <element id="artifact" artifact-name="MakeFriend2:war exploded" />
+      <element id="dir-copy" path="$PROJECT_DIR$/web" />
+    </root>
+  </artifact>
+</component>
