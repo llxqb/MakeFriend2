@@ -5,25 +5,22 @@ package cn.liliu.marry.servlet;
 
 import cn.liliu.marry.dao.indexDao;
 import cn.liliu.marry.daoimpl.indexDaoImpl;
+import cn.liliu.marry.entity.Constant;
 import cn.liliu.marry.entity.User;
-import cn.liliu.marry.utils.MD5Tools;
 import cn.liliu.marry.utils.RSATools;
 
+import javax.crypto.Cipher;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.IOException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
-
-import static cn.liliu.marry.utils.RSATools.encrypt;
 
 public class homeServlet extends HttpServlet {
     indexDao dao = new indexDaoImpl();
-    //获取公钥，并以base64格式打印出来
-//    public static PublicKey publicKey = RSATools.keyStrToPublicKey(RSATools.PUBLIC_RSA);
-//    //获取私钥，并以base64格式打印出来
-//    PrivateKey privateKey = RSATools.keyStrToPrivate(RSATools.PRIVATE_RSA);
+    RSAPublicKey pubKey = (RSAPublicKey) RSATools.keyStrToPublicKey(Constant.PUBLIC_RSA);
+    RSAPrivateKey privKey = (RSAPrivateKey) RSATools.keyStrToPrivate(Constant.PRIVATE_RSA);
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -50,7 +47,7 @@ public class homeServlet extends HttpServlet {
             boolean userFlag = dao.insertUserInfo(user);
             System.out.println("userFlag:" + userFlag);
             if (userFlag) {//插入成功
-                Cookie cookie0 = new Cookie("group_id",encodeValue(user.getGroup_id()) );
+                Cookie cookie0 = new Cookie("group_id", encodeValue(user.group_id));
                 Cookie cookie1 = new Cookie("mime_name", encodeValue(user.mime_name));
                 Cookie cookie2 = new Cookie("mime_year", encodeValue(user.mime_year));
                 Cookie cookie3 = new Cookie("mime_area", encodeValue(user.mime_area));
@@ -99,15 +96,18 @@ public class homeServlet extends HttpServlet {
     //公钥加密
     private String encodeValue(String value) {
         String encode = "";
-//        if (value != null && !value.equals("")) {
-//            //公钥加密
-//            try {
-//                byte[] encryptedBytes = encrypt(value.getBytes(), publicKey);
-//                encode = Base64.getEncoder().encodeToString(encryptedBytes);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        if (value != null && !value.equals("")) {
+            //公钥加密
+            try {
+                Cipher cipher = Cipher.getInstance("RSA");
+                cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+                byte[]  cipherText = cipher.doFinal(value.getBytes());
+                //加密后的东西
+                encode = Base64.getEncoder().encodeToString(cipherText);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return encode;
     }
 

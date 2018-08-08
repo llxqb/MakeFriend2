@@ -38,10 +38,13 @@
             }
         }
     }
-    System.out.println("groupId:" + groupId + " mimeName:" + mimeName);
+    System.out.println("groupId2=" + groupId + " mimeName2=" + mimeName);
     //
     if (groupId != null && !groupId.equals("")  && mimeName != null && mimeName.equals("")) {
+        System.out.println("111" );
         response.sendRedirect("matchingHuman.jsp");
+    }else {
+        System.out.println("222" );
     }
 %>
 

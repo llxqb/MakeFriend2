@@ -5,26 +5,26 @@ package cn.liliu.marry.servlet;
 
 import cn.liliu.marry.dao.indexDao;
 import cn.liliu.marry.daoimpl.indexDaoImpl;
+import cn.liliu.marry.entity.Constant;
 import cn.liliu.marry.entity.User;
 import cn.liliu.marry.utils.RSATools;
 
+import javax.crypto.Cipher;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.List;
 
-import static cn.liliu.marry.utils.RSATools.decrypt;
-import static cn.liliu.marry.utils.RSATools.encrypt;
-
 public class matchingHumanServlet extends HttpServlet {
     //获取私钥，并以base64格式打印出来
-//    PrivateKey privateKey = RSATools.keyStrToPrivate(RSATools.PRIVATE_RSA);
-    indexDao dao = new indexDaoImpl();
-    List<User> mList;
-    User user = null;
+    RSAPublicKey pubKey = (RSAPublicKey) RSATools.keyStrToPublicKey(Constant.PUBLIC_RSA);
+    RSAPrivateKey privKey = (RSAPrivateKey) RSATools.keyStrToPrivate(Constant.PRIVATE_RSA);
+    private indexDao dao = new indexDaoImpl();
+    private List<User> mList;
+    private User user = null;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -52,25 +52,25 @@ public class matchingHumanServlet extends HttpServlet {
             for (int i = 0; i < cookies.length; i++) {
                 String name = cookies[i].getName();
                 if ("group_id".equals(name)) {//如果是中文，cookies需要解码
-                    groupId = cookies[i].getValue();
+                    groupId = dencodeValue(cookies[i].getValue());
                 } else if ("mime_name".equals(name)) {
-                    mimeName = cookies[i].getValue();
+                    mimeName = dencodeValue(cookies[i].getValue());
                 } else if ("mime_year".equals(name)) {
-                    mimeYear = cookies[i].getValue();
+                    mimeYear = dencodeValue(cookies[i].getValue());
                 } else if ("mime_area".equals(name)) {
-                    mimeArea = cookies[i].getValue();
+                    mimeArea = dencodeValue(cookies[i].getValue());
                 } else if ("mime_sex".equals(name)) {
-                    mimeSex = cookies[i].getValue();
+                    mimeSex = dencodeValue(cookies[i].getValue());
                 } else if ("mime_wx_num".equals(name)) {
-                    mimeWXNum = cookies[i].getValue();
+                    mimeWXNum = dencodeValue(cookies[i].getValue());
                 } else if ("mime_interest".equals(name)) {
-                    mimeInterest = cookies[i].getValue();
+                    mimeInterest = dencodeValue(cookies[i].getValue());
                 } else if ("your_year".equals(name)) {
-                    yourYear = cookies[i].getValue();
+                    yourYear = dencodeValue(cookies[i].getValue());
                 } else if ("your_area".equals(name)) {
-                    yourArea = cookies[i].getValue();
+                    yourArea = dencodeValue(cookies[i].getValue());
                 } else if ("your_interest".equals(name)) {
-                    yourInterest = cookies[i].getValue();
+                    yourInterest = dencodeValue(cookies[i].getValue());
                 }
             }
             user = new User(groupId, mimeName, mimeYear, mimeArea, mimeSex, mimeWXNum, mimeInterest, yourYear, yourArea, yourInterest);
@@ -97,17 +97,18 @@ public class matchingHumanServlet extends HttpServlet {
     //私钥解密
     private String dencodeValue(String value) {
         String dencode = "";
-//        if (value != null && !value.equals("")) {
-//            //公钥加密
-//            try {
-//                byte[] encryptedBytes = encrypt(value.getBytes(), homeServlet.publicKey);
-//                //私钥解密
-//                byte[] decryptedBytes = decrypt(encryptedBytes, privateKey);
-//                dencode = new String(decryptedBytes);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        if (value != null && !value.equals("")) {
+            try {
+                Cipher cipher = Cipher.getInstance("RSA");
+                //开始解密
+                cipher.init(Cipher.DECRYPT_MODE, privKey);
+                byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(value.getBytes()));
+                dencode = new String(plainText);
+                System.out.println("dencode:" + dencode);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return dencode;
     }
 }
