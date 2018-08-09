@@ -49,28 +49,29 @@ public class matchingHumanServlet extends HttpServlet {
         String yourArea = null;
         String yourInterest = null;
         if (cookies != null) {
+            RSATools rsaTools= new RSATools();
             for (int i = 0; i < cookies.length; i++) {
                 String name = cookies[i].getName();
                 if ("group_id".equals(name)) {//如果是中文，cookies需要解码
-                    groupId = dencodeValue(cookies[i].getValue());
+                    groupId = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_name".equals(name)) {
-                    mimeName = dencodeValue(cookies[i].getValue());
+                    mimeName = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_year".equals(name)) {
-                    mimeYear = dencodeValue(cookies[i].getValue());
+                    mimeYear = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_area".equals(name)) {
-                    mimeArea = dencodeValue(cookies[i].getValue());
+                    mimeArea = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_sex".equals(name)) {
-                    mimeSex = dencodeValue(cookies[i].getValue());
+                    mimeSex = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_wx_num".equals(name)) {
-                    mimeWXNum = dencodeValue(cookies[i].getValue());
+                    mimeWXNum = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("mime_interest".equals(name)) {
-                    mimeInterest = dencodeValue(cookies[i].getValue());
+                    mimeInterest = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("your_year".equals(name)) {
-                    yourYear = dencodeValue(cookies[i].getValue());
+                    yourYear = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("your_area".equals(name)) {
-                    yourArea = dencodeValue(cookies[i].getValue());
+                    yourArea = rsaTools.dencodeValue(cookies[i].getValue());
                 } else if ("your_interest".equals(name)) {
-                    yourInterest = dencodeValue(cookies[i].getValue());
+                    yourInterest = rsaTools.dencodeValue(cookies[i].getValue());
                 }
             }
             user = new User(groupId, mimeName, mimeYear, mimeArea, mimeSex, mimeWXNum, mimeInterest, yourYear, yourArea, yourInterest);
@@ -94,22 +95,6 @@ public class matchingHumanServlet extends HttpServlet {
         }
     }
 
-    //私钥解密
-    private String dencodeValue(String value) {
-        String dencode = "";
-        if (value != null && !value.equals("")) {
-            try {
-                Cipher cipher = Cipher.getInstance("RSA");
-                //开始解密
-                cipher.init(Cipher.DECRYPT_MODE, privKey);
-                byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(value.getBytes()));
-                dencode = new String(plainText);
-                System.out.println("dencode:" + dencode);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return dencode;
-    }
+
 }
 

@@ -19,8 +19,7 @@ import java.util.Base64;
 
 public class homeServlet extends HttpServlet {
     indexDao dao = new indexDaoImpl();
-    RSAPublicKey pubKey = (RSAPublicKey) RSATools.keyStrToPublicKey(Constant.PUBLIC_RSA);
-    RSAPrivateKey privKey = (RSAPrivateKey) RSATools.keyStrToPrivate(Constant.PRIVATE_RSA);
+
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -47,16 +46,17 @@ public class homeServlet extends HttpServlet {
             boolean userFlag = dao.insertUserInfo(user);
             System.out.println("userFlag:" + userFlag);
             if (userFlag) {//插入成功
-                Cookie cookie0 = new Cookie("group_id", encodeValue(user.group_id));
-                Cookie cookie1 = new Cookie("mime_name", encodeValue(user.mime_name));
-                Cookie cookie2 = new Cookie("mime_year", encodeValue(user.mime_year));
-                Cookie cookie3 = new Cookie("mime_area", encodeValue(user.mime_area));
-                Cookie cookie4 = new Cookie("mime_sex", encodeValue(user.mime_sex));
-                Cookie cookie5 = new Cookie("mime_wx_num", encodeValue(user.mime_wx_num));
-                Cookie cookie6 = new Cookie("mime_interest", encodeValue(user.mime_interest));
-                Cookie cookie7 = new Cookie("your_year", encodeValue(user.your_year));
-                Cookie cookie8 = new Cookie("your_area", encodeValue(user.your_area));
-                Cookie cookie9 = new Cookie("your_interest", encodeValue(user.your_interest));
+                RSATools rsaTools= new RSATools();
+                Cookie cookie0 = new Cookie("group_id", rsaTools.encodeValue(user.group_id));
+                Cookie cookie1 = new Cookie("mime_name", rsaTools.encodeValue(user.mime_name));
+                Cookie cookie2 = new Cookie("mime_year", rsaTools.encodeValue(user.mime_year));
+                Cookie cookie3 = new Cookie("mime_area", rsaTools.encodeValue(user.mime_area));
+                Cookie cookie4 = new Cookie("mime_sex", rsaTools.encodeValue(user.mime_sex));
+                Cookie cookie5 = new Cookie("mime_wx_num", rsaTools.encodeValue(user.mime_wx_num));
+                Cookie cookie6 = new Cookie("mime_interest", rsaTools.encodeValue(user.mime_interest));
+                Cookie cookie7 = new Cookie("your_year", rsaTools.encodeValue(user.your_year));
+                Cookie cookie8 = new Cookie("your_area", rsaTools.encodeValue(user.your_area));
+                Cookie cookie9 = new Cookie("your_interest", rsaTools.encodeValue(user.your_interest));
                 //设置保存时间
                 int keepTime = 20 * 24 * 60 * 60;
                 cookie0.setMaxAge(keepTime);
@@ -93,23 +93,7 @@ public class homeServlet extends HttpServlet {
         }
     }
 
-    //公钥加密
-    private String encodeValue(String value) {
-        String encode = "";
-        if (value != null && !value.equals("")) {
-            //公钥加密
-            try {
-                Cipher cipher = Cipher.getInstance("RSA");
-                cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-                byte[]  cipherText = cipher.doFinal(value.getBytes());
-                //加密后的东西
-                encode = Base64.getEncoder().encodeToString(cipherText);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return encode;
-    }
+
 
 }
 

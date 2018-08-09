@@ -1,4 +1,5 @@
-<%@ page import="java.net.URLDecoder" %><%--
+<%@ page import="java.net.URLDecoder" %>
+<%@ page import="cn.liliu.marry.utils.RSATools" %><%--
   Created by IntelliJ IDEA.
   User: li.liu
   Date: 2018/8/3
@@ -29,22 +30,20 @@
     String groupId = null;
     String mimeName = null;
     if (cookies != null) {
+        RSATools rsaTools = new RSATools();
         for (int i = 0; i < cookies.length; i++) {
             String name = cookies[i].getName();
             if ("group_id".equals(name)) {//如果是中文，cookies需要解码
-                groupId = URLDecoder.decode(cookies[i].getValue(), "utf-8");
+                groupId = rsaTools.dencodeValue(cookies[i].getValue());
             } else if ("mime_name".equals(name)) {
-                mimeName = cookies[i].getValue();
+                mimeName = rsaTools.dencodeValue(cookies[i].getValue());
             }
         }
     }
-    System.out.println("groupId2=" + groupId + " mimeName2=" + mimeName);
     //
-    if (groupId != null && !groupId.equals("")  && mimeName != null && mimeName.equals("")) {
-        System.out.println("111" );
+    System.out.println("groupId:" + groupId + "  mimeName:" + mimeName);
+    if (groupId != null && !groupId.equals("") && mimeName != null && !mimeName.equals("")) {
         response.sendRedirect("matchingHuman.jsp");
-    }else {
-        System.out.println("222" );
     }
 %>
 
